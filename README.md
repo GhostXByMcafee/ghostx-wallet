@@ -94,7 +94,7 @@ Download the latest version of **ghostEX Wallet APK** from our official website:
 
 ## In Action
 
-[![ghostEX Wallet in Action](./assets/ghostex-preview.png)](https://youtu.be/)
+[![ghostEX Wallet in Action](./assets/ghostex-preview.png)](https://github.com/eliecerhf/ghostx-wallet/blob/main/assets/2025-03-25%2023-59-21.mp4)
 
 ---
 
