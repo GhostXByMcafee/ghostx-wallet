@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Switch } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
+import Modal from '../../components/common/Modal';
 import ToggleSwitch from '../../components/common/ToggleSwitch';
-import useWalletStore from '../../store/useWalletStore';
-import encryptionService from '../../services/encryption/encryptionService';
 import analyticsService from '../../services/analytics/analyticsService';
+import encryptionService from '../../services/encryption/encryptionService';
+import useWalletStore from '../../store/useWalletStore';
 
 const SettingsScreen: React.FC = () => {
   const { alias, isBiometricEnabled, setBiometricEnabled, logout } = useWalletStore();
   const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   
   useEffect(() => {
     analyticsService.trackScreen('SettingsScreen');
@@ -29,18 +31,31 @@ const SettingsScreen: React.FC = () => {
   };
 
   const handleBiometricToggle = async (value: boolean) => {
-    if (value) {
-      const authenticated = await encryptionService.authenticateWithBiometrics(
-        "Confirm your identity to activate biometric authentication"
-      );
-      
-      if (authenticated) {
-        await setBiometricEnabled(true);
+    try {
+      if (value) {
+        const authenticated = await encryptionService.authenticateWithBiometrics(
+          "Confirm your identity to activate biometric authentication"
+        );
+        
+        if (authenticated) {
+          await setBiometricEnabled(true);
+          Alert.alert(
+            "Success",
+            "Biometric authentication has been activated successfully"
+          );
+        }
       } else {
-        return;
+        await setBiometricEnabled(false);
+        Alert.alert(
+          "Disabled",
+          "Biometric authentication has been disabled"
+        );
       }
-    } else {
-      await setBiometricEnabled(false);
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "Failed to configure biometric authentication. Please try again."
+      );
     }
   };
 
@@ -53,27 +68,16 @@ const SettingsScreen: React.FC = () => {
     setAnalyticsEnabled(value);
   };
 
-  const handleLogout = () => {
-    Alert.alert(
-      "Confirm logout",
-      "Are you sure you want to logout? You will need your password to access your wallet again.",
-      [
-        { 
-          text: "Cancel", 
-          style: "cancel" 
-        },
-        { 
-          text: "Logout", 
-          style: "destructive",
-          onPress: async () => {
-            analyticsService.trackEvent({
-              name: 'user_logout',
-            });
-            await logout();
-          }
-        }
-      ]
-    );
+  const handleLogoutPress = () => {
+    setShowLogoutModal(true);
+  };
+
+  const handleLogoutConfirm = async () => {
+    analyticsService.trackEvent({
+      name: 'logout_confirmed',
+    });
+    await logout();
+    setShowLogoutModal(false);
   };
 
   return (
@@ -93,11 +97,22 @@ const SettingsScreen: React.FC = () => {
         <Text style={styles.sectionTitle}>Security</Text>
         
         {biometricAvailable && (
-          <ToggleSwitch
-            label="Biometric authentication"
-            value={isBiometricEnabled}
-            onValueChange={handleBiometricToggle}
-          />
+          <Card style={styles.settingCard}>
+            <View style={styles.settingRow}>
+              <View style={styles.settingInfo}>
+                <Text style={styles.settingLabel}>Biometric Authentication</Text>
+                <Text style={styles.settingDescription}>
+                  Use fingerprint or face recognition to secure your wallet
+                </Text>
+              </View>
+              <Switch
+                value={isBiometricEnabled}
+                onValueChange={handleBiometricToggle}
+                trackColor={{ false: '#767577', true: '#4CAF50' }}
+                thumbColor={isBiometricEnabled ? '#fff' : '#f4f3f4'}
+              />
+            </View>
+          </Card>
         )}
         
         <Button
@@ -135,12 +150,30 @@ const SettingsScreen: React.FC = () => {
       <View style={styles.logoutContainer}>
         <Button
           title="Logout"
-          variant="outline"
-          onPress={handleLogout}
-          style={styles.logoutButton}
-          textStyle={styles.logoutText}
+          variant="secondary"
+          style={[styles.logoutButton, { backgroundColor: '#DC3545' }]}
+          onPress={handleLogoutPress}
         />
       </View>
+
+      <Modal
+        visible={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="Confirm Logout"
+        description="Are you sure you want to logout? You will need your password to access your wallet again."
+        actions={[
+          {
+            text: 'Cancel',
+            variant: 'outline',
+            onPress: () => setShowLogoutModal(false),
+          },
+          {
+            text: 'Logout',
+            variant: 'secondary',
+            onPress: handleLogoutConfirm,
+          },
+        ]}
+      />
     </ScrollView>
   );
 };
@@ -195,10 +228,33 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   logoutButton: {
-    borderColor: '#FF4D4D',
+    marginTop: 32,
+    marginBottom: 24,
   },
   logoutText: {
     color: '#FF4D4D',
+  },
+  settingCard: {
+    marginBottom: 16,
+  },
+  settingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+  },
+  settingInfo: {
+    flex: 1,
+    marginRight: 16,
+  },
+  settingLabel: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  settingDescription: {
+    fontSize: 14,
+    color: '#666',
   },
 });
 

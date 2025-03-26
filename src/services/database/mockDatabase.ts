@@ -1,4 +1,5 @@
 import { TokenBalance, Proposal, Vote } from '../../types';
+import { ImageSourcePropType } from 'react-native';
 
 // Example data for development
 export const mockTokens: TokenBalance[] = [
@@ -8,7 +9,7 @@ export const mockTokens: TokenBalance[] = [
     symbol: 'ETH',
     balance: '2.34',
     decimals: 18,
-    iconUrl: 'https://cryptologos.cc/logos/ethereum-eth-logo.png',
+    iconUrl: require('../../../assets/ethereum-eth-logo.png') as ImageSourcePropType,
   },
   {
     id: '2',
@@ -16,15 +17,15 @@ export const mockTokens: TokenBalance[] = [
     symbol: 'USDC',
     balance: '156.78',
     decimals: 6,
-    iconUrl: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png',
+    iconUrl: require('../../../assets/usd-coin-usdc-logo.png') as ImageSourcePropType,
   },
   {
     id: '3',
-    name: 'Ghost Token',
-    symbol: 'GHOST',
+    name: 'GhostX Token',
+    symbol: 'GHOSTX',
     balance: '1245.67',
     decimals: 18,
-    iconUrl: 'https://via.placeholder.com/64',
+    iconUrl: require('../../../assets/ghostx-logo-token.png') as ImageSourcePropType,
   },
 ];
 
@@ -50,7 +51,7 @@ export const mockProposals: Proposal[] = [
     createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
     startDate: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
     endDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    status: 'closed',
+    status: 'passed',
     votesFor: 245680,
     votesAgainst: 134570,
     executed: true,

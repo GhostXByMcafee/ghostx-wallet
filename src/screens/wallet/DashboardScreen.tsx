@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, SafeAreaView, StatusBar, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/types';
@@ -60,7 +60,15 @@ const DashboardScreen: React.FC = () => {
       <Card style={styles.tokenCard}>
         <View style={styles.tokenInfo}>
           <View style={styles.tokenIconContainer}>
-            <View style={styles.tokenIconPlaceholder} />
+            {item.iconUrl ? (
+              <Image 
+                source={item.iconUrl} 
+                style={styles.tokenIcon}
+                resizeMode="contain"
+              />
+            ) : (
+              <View style={styles.tokenIconPlaceholder} />
+            )}
           </View>
           <View style={styles.tokenDetails}>
             <Text style={styles.tokenSymbol}>{item.symbol}</Text>
@@ -204,6 +212,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#AAAAAA',
     marginTop: 2,
+  },
+  tokenIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
 });
 

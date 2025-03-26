@@ -1,19 +1,18 @@
-import React from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  Image, 
-  useWindowDimensions,
-  TouchableOpacity,
-  Platform
-} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import React from 'react';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View
+} from 'react-native';
+import Button from '../../components/common/Button';
+import Card from '../../components/common/Card';
 import { RootStackParamList } from '../../navigation/types';
 import analyticsService from '../../services/analytics/analyticsService';
-import Card from '../../components/common/Card';
-import Button from '../../components/common/Button';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Welcome'>;
 
@@ -23,13 +22,13 @@ const WelcomeScreen: React.FC = () => {
   
   React.useEffect(() => {
     analyticsService.initialize().then(() => {
-      console.log("Servicio de analíticas inicializado");
+      console.log("Analytics service initialized");
       analyticsService.trackScreen('WelcomeScreen');
     });
   }, []);
 
   const handleCreateWallet = () => {
-    console.log("¡Botón Crear Billetera presionado!");
+    console.log("Create Wallet button pressed!");
     analyticsService.trackEvent({
       name: 'start_wallet_creation',
     });
@@ -55,23 +54,32 @@ const WelcomeScreen: React.FC = () => {
       <Card style={styles.featuresCard}>
         <View style={styles.featureItem}>
           <Text style={styles.featureTitle}>Total Security</Text>
-          <Text style={styles.featureDescription}>
-            Your keys never leave your device
-          </Text>
+          <View style={styles.featureRow}>
+            <Ionicons name="shield-checkmark" size={24} color="#4CAF50" />
+            <Text style={styles.featureDescription}>
+              Your keys never leave your device
+            </Text>
+          </View>
         </View>
         
         <View style={styles.featureItem}>
           <Text style={styles.featureTitle}>Full Control</Text>
-          <Text style={styles.featureDescription}>
-            Manage your tokens without intermediaries
-          </Text>
+          <View style={styles.featureRow}>
+            <Ionicons name="flash" size={24} color="#2196F3" />
+            <Text style={styles.featureDescription}>
+              Manage your tokens without intermediaries
+            </Text>
+          </View>
         </View>
         
         <View style={styles.featureItem}>
           <Text style={styles.featureTitle}>Governance</Text>
-          <Text style={styles.featureDescription}>
-            Participate in network decisions with your tokens
-          </Text>
+          <View style={styles.featureRow}>
+            <Ionicons name="finger-print" size={24} color="#9C27B0" />
+            <Text style={styles.featureDescription}>
+              Participate in network decisions with your tokens
+            </Text>
+          </View>
         </View>
       </Card>
 
@@ -119,8 +127,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   featuresCard: {
-    marginTop: 20,
-    marginBottom: 30,
+    marginTop: 10,
+    marginBottom: 20  ,
   },
   featureItem: {
     marginBottom: 16,
@@ -138,6 +146,20 @@ const styles = StyleSheet.create({
   createButton: {
     marginTop: 'auto',
     marginBottom: 20,
+  },
+  featureContainer: {
+    marginVertical: 20,
+  },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 10,
+    paddingHorizontal: 20,
+  },
+  featureText: {
+    marginLeft: 12,
+    fontSize: 16,
+    color: '#333',
   },
 });
 

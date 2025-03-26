@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, Image } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../../navigation/types';
@@ -62,6 +62,15 @@ const TokenDetailsScreen: React.FC = () => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
+        {token.iconUrl ? (
+          <Image 
+            source={token.iconUrl} 
+            style={styles.tokenIcon}
+            resizeMode="contain"
+          />
+        ) : (
+          <View style={styles.tokenIconPlaceholder} />
+        )}
         <Text style={styles.tokenSymbol}>{token.symbol}</Text>
         <Text style={styles.tokenName}>{token.name}</Text>
         <Text style={styles.tokenBalance}>
@@ -163,6 +172,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
+  },
+  tokenIcon: {
+    width: 60,
+    height: 60,
+    marginBottom: 12,
+  },
+  tokenIconPlaceholder: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#3366FF',
+    marginBottom: 12,
   },
   tokenSymbol: {
     fontSize: 20,

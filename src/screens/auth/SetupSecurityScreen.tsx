@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../navigation/types';
-import Input from '../../components/common/Input';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
+import Input from '../../components/common/Input';
+import PasswordStrengthMeter from '../../components/common/PasswordStrengthMeter';
 import ToggleSwitch from '../../components/common/ToggleSwitch';
-import encryptionService from '../../services/encryption/encryptionService';
+import { RootStackParamList } from '../../navigation/types';
 import analyticsService from '../../services/analytics/analyticsService';
+import encryptionService from '../../services/encryption/encryptionService';
+import useWalletStore from '../../store/useWalletStore';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'SetupSecurity'>;
 type RouteProps = RouteProp<RootStackParamList, 'SetupSecurity'>;
@@ -16,6 +18,7 @@ type RouteProps = RouteProp<RootStackParamList, 'SetupSecurity'>;
 const SetupSecurityScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RouteProps>();
+  const { createWallet } = useWalletStore();
   const { alias } = route.params || {};
   
   const [passkey, setPasskey] = useState('');
@@ -24,6 +27,7 @@ const SetupSecurityScreen: React.FC = () => {
   const [isBiometricSupported, setIsBiometricSupported] = useState(false);
   const [passkeyError, setPasskeyError] = useState('');
   const [confirmError, setConfirmError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   React.useEffect(() => {
     analyticsService.trackScreen('SetupSecurityScreen');
@@ -41,11 +45,13 @@ const SetupSecurityScreen: React.FC = () => {
       return false;
     }
     
+    const hasUpperCase = /[A-Z]/.test(passkey);
+    const hasLowerCase = /[a-z]/.test(passkey);
     const hasNumber = /\d/.test(passkey);
-    const hasLetter = /[a-zA-Z]/.test(passkey);
+    const hasSpecial = /[^A-Za-z0-9]/.test(passkey);
     
-    if (!hasNumber || !hasLetter) {
-      setPasskeyError('The password must include at least one number and one letter');
+    if (!hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecial) {
+      setPasskeyError('The password must include uppercase, lowercase, numbers and special characters');
       return false;
     }
     
@@ -78,33 +84,16 @@ const SetupSecurityScreen: React.FC = () => {
     setEnableBiometric(value);
   };
 
-  const handleContinue = () => {
-    const isPasskeyValid = validatePasskey(passkey);
-    const isConfirmValid = validateConfirmPasskey(confirmPasskey);
-    
-    if (isPasskeyValid && isConfirmValid) {
-      analyticsService.trackEvent({
-        name: 'security_setup_completed',
-        properties: {
-          biometricsEnabled: enableBiometric,
-          passkeyLength: passkey.length,
-        },
-      });
-      
-      if (enableBiometric && isBiometricSupported) {
-        navigation.navigate('BiometricSetup', { 
-          alias, 
-          passkey,
-          enableBiometric 
-        });
-      } else {
-        navigation.navigate('Success', { 
-          alias, 
-          passkey,
-          enableBiometric: false
-        });
-      }
+  const handleContinue = async () => {
+    if (!validatePasskey(passkey) || !validateConfirmPasskey(confirmPasskey)) {
+      return;
     }
+
+    navigation.navigate('BiometricSetup', {
+      alias,
+      passkey,
+      enableBiometric
+    });
   };
 
   return (
@@ -126,6 +115,7 @@ const SetupSecurityScreen: React.FC = () => {
             isPassword
             error={passkeyError}
           />
+          <PasswordStrengthMeter password={passkey} />
           
           <Input
             label="Confirm password"

@@ -1,36 +1,7 @@
+import { TokenBalance, Proposal, Vote } from '../types';
 import { create } from 'zustand';
 import encryptionService from '../services/encryption/encryptionService';
-
-interface TokenBalance {
-  id: string;
-  symbol: string;
-  name: string;
-  balance: string;
-  decimals: number;
-  iconUrl?: string;
-}
-
-interface Proposal {
-  id: string;
-  title: string;
-  description: string;
-  creator: string;
-  startDate: string;
-  endDate: string;
-  status: 'active' | 'passed' | 'rejected' | 'pending';
-  votesFor: number;
-  votesAgainst: number;
-  executed: boolean;
-  createdAt: string;
-}
-
-interface Vote {
-  proposalId: string;
-  voter: string;
-  support: boolean;
-  voteWeight: number;
-  timestamp: string;
-}
+import { ImageSourcePropType } from 'react-native';
 
 interface WalletState {
   isInitialized: boolean;
@@ -56,11 +27,11 @@ interface WalletState {
 const DEMO_TOKENS: TokenBalance[] = [
   {
     id: '1',
-    symbol: 'GTX',
-    name: 'GhostEx Token',
+    symbol: 'GHOSTX',
+    name: 'GhostX Token',
     balance: '1000.0',
     decimals: 18,
-    iconUrl: 'https://via.placeholder.com/64',
+    iconUrl: require('../../assets/ghostx-logo-token.png') as ImageSourcePropType,
   },
   {
     id: '2',
@@ -68,7 +39,7 @@ const DEMO_TOKENS: TokenBalance[] = [
     name: 'USD Coin',
     balance: '500.0',
     decimals: 6,
-    iconUrl: 'https://via.placeholder.com/64',
+    iconUrl: require('../../assets/usd-coin-usdc-logo.png') as ImageSourcePropType,
   },
 ];
 
@@ -132,7 +103,7 @@ const useWalletStore = create<WalletState>((set, get) => ({
         set({ isLoading: false });
       }
     } catch (error) {
-      set({ error: 'Error al inicializar la billetera', isLoading: false });
+      set({ error: 'Error initializing wallet', isLoading: false });
       console.error('Error initializing wallet:', error);
     }
   },
@@ -141,42 +112,32 @@ const useWalletStore = create<WalletState>((set, get) => ({
     try {
       set({ isLoading: true, error: null });
       
-      const privateKey = `0x${Math.random().toString(16).substring(2, 34)}`;
-      const publicKey = `0x${Math.random().toString(16).substring(2, 42)}`;
-      
       const walletData = {
         alias,
-        privateKey,
-        publicKey,
+        publicKey: '0x' + Math.random().toString(16).slice(2),
+        privateKey: Math.random().toString(16),
         biometricEnabled: enableBiometric
       };
       
-      await encryptionService.saveWalletData(walletData);
+      const saved = await encryptionService.saveWalletData(walletData);
       
-      const userData = {
-        userId: publicKey,
-        displayName: alias,
-        preferences: {
-          passkey: passkey
-        }
-      };
+      if (saved) {
+        set({
+          isInitialized: true,
+          alias: walletData.alias,
+          publicKey: walletData.publicKey,
+          isBiometricEnabled: enableBiometric,
+          tokens: DEMO_TOKENS,
+          proposals: DEMO_PROPOSALS,
+        });
+        return true;
+      }
       
-      await encryptionService.saveUserData(userData);
-      
-      set({
-        isInitialized: true,
-        alias,
-        publicKey,
-        isBiometricEnabled: enableBiometric,
-        tokens: [...DEMO_TOKENS],
-        proposals: [...DEMO_PROPOSALS],
-        votes: []
-      });
-      
-      return true;
-    } catch (error) {
+      return false;
+    } catch (error: Error | unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      console.error('Error creating wallet:', { message: errorMessage });
       set({ error: 'Error creating wallet' });
-      console.error('Error creating wallet:', error);
       return false;
     } finally {
       set({ isLoading: false });
@@ -261,6 +222,7 @@ const useWalletStore = create<WalletState>((set, get) => ({
       set({ isLoading: true, error: null });
       
       const newVote: Vote = {
+        id: 'new_' + Date.now(),
         proposalId,
         voter: get().publicKey || '0x000',
         support,

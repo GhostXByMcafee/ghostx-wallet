@@ -1,12 +1,13 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image, useWindowDimensions } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../navigation/types';
+import LottieView from 'lottie-react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
-import useWalletStore from '../../store/useWalletStore';
+import { RootStackParamList } from '../../navigation/types';
 import analyticsService from '../../services/analytics/analyticsService';
+import useWalletStore from '../../store/useWalletStore';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'Success'>;
 type RouteProps = RouteProp<RootStackParamList, 'Success'>;
@@ -18,40 +19,49 @@ const SuccessScreen: React.FC = () => {
   const { width } = useWindowDimensions();
   
   const { createWallet, isLoading } = useWalletStore();
+  const [isLoadingState, setIsLoading] = useState(false);
   
   useEffect(() => {
     analyticsService.trackScreen('SuccessScreen');
-    
-    const setupWallet = async () => {
-      if (alias && passkey) {
-        await createWallet(alias, passkey, enableBiometric);
-      }
-    };
-    
-    setupWallet();
   }, []);
 
-  const handleBridgeUSDC = () => {
+  const handleBridgeUSDC = async () => {
+    setIsLoading(true);
+    if (alias && passkey) {
+      await createWallet(alias, passkey, enableBiometric);
+    }
+    setIsLoading(false);
+    
     analyticsService.trackEvent({
       name: 'bridge_usdc_selected',
     });
-    navigation.navigate('MainTabs');
   };
 
-  const handleGoDashboard = () => {
+  const handleGoDashboard = async () => {
+    setIsLoading(true);
+    if (alias && passkey) {
+      await createWallet(alias, passkey, enableBiometric);
+    }
+    setIsLoading(false);
+    
     analyticsService.trackEvent({
       name: 'go_to_dashboard_selected',
     });
-    navigation.navigate('MainTabs');
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Image
-          source={{ uri: 'https://via.placeholder.com/200.png?text=Success' }}
-          style={[styles.successImage, { width: width * 0.5, height: width * 0.5 }]}
-          resizeMode="contain"
+        <LottieView
+          source={require('../../../assets/success-fireworks-animation.json')}
+          autoPlay
+          loop={false}
+          style={{
+            width: 200,
+            height: 200,
+            alignSelf: 'center',
+            marginBottom: 30
+          }}
         />
         
         <Text style={styles.title}>Wallet created successfully!</Text>
@@ -82,8 +92,8 @@ const SuccessScreen: React.FC = () => {
           title="Bridge USDC from Base"
           onPress={handleBridgeUSDC}
           style={styles.optionButton}
-          disabled={isLoading}
-          loading={isLoading}
+          disabled={isLoadingState}
+          loading={isLoadingState}
         />
         
         <Button
@@ -91,7 +101,7 @@ const SuccessScreen: React.FC = () => {
           onPress={handleGoDashboard}
           variant="outline"
           style={styles.optionButton}
-          disabled={isLoading}
+          disabled={isLoadingState}
         />
       </View>
     </View>

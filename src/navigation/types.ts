@@ -19,6 +19,7 @@ export type RootStackParamList = {
   MainTabs: undefined;
   
   Dashboard: undefined;
+  Swap: undefined;
   TokenDetails: {
     tokenId: string;
   };

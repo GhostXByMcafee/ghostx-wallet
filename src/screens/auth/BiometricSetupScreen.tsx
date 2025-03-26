@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, Alert } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from '../../navigation/types';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, StyleSheet, Text, View } from 'react-native';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
-import encryptionService from '../../services/encryption/encryptionService';
+import { RootStackParamList } from '../../navigation/types';
 import analyticsService from '../../services/analytics/analyticsService';
+import encryptionService from '../../services/encryption/encryptionService';
 
 type NavigationProp = StackNavigationProp<RootStackParamList, 'BiometricSetup'>;
 type RouteProps = RouteProp<RootStackParamList, 'BiometricSetup'>;
@@ -88,7 +88,7 @@ const BiometricSetupScreen: React.FC = () => {
   };
 
   const proceedToSuccess = (withBiometrics: boolean) => {
-    navigation.navigate('Success', {
+    navigation.replace('Success', {
       alias,
       passkey,
       enableBiometric: withBiometrics,

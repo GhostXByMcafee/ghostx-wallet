@@ -92,11 +92,17 @@ Download the latest version of **ghostEX Wallet APK** from our official website:
 
 ---
 
+## In Action
+
+[![ghostEX Wallet in Action](./assets/ghostex-preview.png)](https://youtu.be/)
+
+---
+
 ## Support
 
 For support, questions, or feedback, please contact:
 
-- **Email**: [support@ghostex.app](mailto:support@ghostex.app)
+- **Email**: [support@ghostx.tech](mailto:support@ghostx.tech)
 - **Twitter**: [@ghostEX_____](https://twitter.com/ghostEX_____)
 
 ---
@@ -104,5 +110,3 @@ For support, questions, or feedback, please contact:
 ## Disclaimer
 
 While we strive to ensure maximum security, please practice good security habits and **never share your recovery phrase or private keys with anyone**.
-
----

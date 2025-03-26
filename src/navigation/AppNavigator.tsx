@@ -12,6 +12,7 @@ import SuccessScreen from '../screens/auth/SuccessScreen';
 
 import DashboardScreen from '../screens/wallet/DashboardScreen';
 import TokenDetailsScreen from '../screens/wallet/TokenDetailsScreen';
+import SwapScreen from '../screens/wallet/SwapScreen';
 import GovernanceScreen from '../screens/governance/GovernanceScreen';
 import ProposalDetailsScreen from '../screens/governance/ProposalDetailsScreen';
 import CreateProposalScreen from '../screens/governance/CreateProposalScreen';
@@ -50,6 +51,14 @@ const MainTabs = () => {
         options={{
           tabBarIcon: tabIcon('wallet-outline'),
           tabBarLabel: "Wallet"
+        }}
+      />
+      <Tab.Screen
+        name="Swap"
+        component={SwapScreen}
+        options={{
+          tabBarIcon: tabIcon('swap-horizontal-outline'),
+          tabBarLabel: "Swap"
         }}
       />
       <Tab.Screen
